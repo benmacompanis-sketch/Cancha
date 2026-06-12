@@ -1,12 +1,12 @@
 "use client";
 
-import type { Booking, PaymentKind, PaymentMethod } from "./types";
+import type { Booking, PaymentKind, PaymentMethod, Slot } from "./types";
 import { getVenue } from "./venues";
 import { getSlotsForVenue } from "./availability";
 import {
+  applySlotOverrides,
   getAdminSettings,
   getEffectiveVenue,
-  isSlotBlocked,
 } from "./admin-store";
 
 /**
@@ -44,6 +44,18 @@ function isClientTaken(fieldId: string, date: string, hour: number) {
   );
 }
 
+/** Marca como ocupados los turnos ya reservados desde este navegador. */
+export function applyClientBookings(slots: Slot[]): Slot[] {
+  const taken = new Set(
+    getClientBookings()
+      .filter((b) => b.status !== "cancelada")
+      .map((b) => `${b.fieldId}|${b.date}|${b.hour}`)
+  );
+  return slots.map((s) =>
+    taken.has(`${s.fieldId}|${s.date}|${s.hour}`) ? { ...s, available: false } : s
+  );
+}
+
 export interface CreateBookingInput {
   venueSlug: string;
   fieldId: string;
@@ -61,19 +73,16 @@ export function createClientBooking(
   const baseVenue = getVenue(input.venueSlug);
   if (!baseVenue) return { error: "Complejo no encontrado" };
 
-  // Configuración del panel de admin: precios, canchas activas, bloqueos
+  // Configuración del panel de admin: precios, canchas activas y
+  // estados forzados de turnos (ocupado/disponible)
   const venue = getEffectiveVenue(baseVenue);
   const field = venue.fields.find((f) => f.id === input.fieldId);
   if (!field) return { error: "Cancha no encontrada" };
 
-  const slot = getSlotsForVenue(venue, input.date).find(
+  const slot = applySlotOverrides(getSlotsForVenue(venue, input.date)).find(
     (s) => s.fieldId === input.fieldId && s.hour === input.hour
   );
-  if (
-    !slot?.available ||
-    isSlotBlocked(input.fieldId, input.date, input.hour) ||
-    isClientTaken(input.fieldId, input.date, input.hour)
-  ) {
+  if (!slot?.available || isClientTaken(input.fieldId, input.date, input.hour)) {
     return { error: "Ese turno acaba de ocuparse. Elegí otro horario." };
   }
 

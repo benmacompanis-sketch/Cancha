@@ -17,9 +17,9 @@ import {
 import type { Venue, PaymentKind, PaymentMethod } from "@/lib/data/types";
 import { FIELD_TYPE_LABELS } from "@/lib/data/venues";
 import { getSlotsForVenue } from "@/lib/data/availability";
-import { createClientBooking } from "@/lib/data/client-store";
+import { applyClientBookings, createClientBooking } from "@/lib/data/client-store";
 import {
-  applyBlockedSlots,
+  applySlotOverrides,
   getAdminSettings,
   getEffectiveVenue,
 } from "@/lib/data/admin-store";
@@ -55,7 +55,9 @@ export function BookingWizard({ venue: baseVenue }: Props) {
   const dates = React.useMemo(() => getUpcomingDates(7), []);
   const slots = React.useMemo(
     () =>
-      applyBlockedSlots(dates.flatMap((d) => getSlotsForVenue(venue, d.iso))),
+      applyClientBookings(
+        applySlotOverrides(dates.flatMap((d) => getSlotsForVenue(venue, d.iso)))
+      ),
     [venue, dates]
   );
 

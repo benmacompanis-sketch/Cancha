@@ -6,7 +6,8 @@ import { motion } from "framer-motion";
 import type { Venue } from "@/lib/data/types";
 import { FIELD_TYPE_LABELS } from "@/lib/data/venues";
 import { getSlotsForVenue } from "@/lib/data/availability";
-import { applyBlockedSlots, getEffectiveVenue } from "@/lib/data/admin-store";
+import { applySlotOverrides, getEffectiveVenue } from "@/lib/data/admin-store";
+import { applyClientBookings } from "@/lib/data/client-store";
 import { getUpcomingDates } from "@/lib/dates";
 import { cn, formatARS } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +32,9 @@ export function AvailabilityGrid({ venue: baseVenue }: Props) {
   const dates = React.useMemo(() => getUpcomingDates(7), []);
   const slots = React.useMemo(
     () =>
-      applyBlockedSlots(dates.flatMap((d) => getSlotsForVenue(venue, d.iso))),
+      applyClientBookings(
+        applySlotOverrides(dates.flatMap((d) => getSlotsForVenue(venue, d.iso)))
+      ),
     [venue, dates]
   );
 

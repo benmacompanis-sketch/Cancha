@@ -5,30 +5,32 @@ import type { Slot, Venue } from "./types";
 /**
  * Configuración del complejo administrable desde el panel.
  * Se persiste en localStorage (modo demo / hosting estático) y los
- * cambios impactan en la web pública: precios, turnos bloqueados,
- * horarios de apertura y porcentaje de seña. En producción esta capa
- * se reemplaza por Prisma (tablas Field, PriceRule y un BlockedSlot)
- * manteniendo el mismo contrato.
+ * cambios impactan en la web pública: precios, estado de cada turno
+ * (ocupado/disponible), horarios de apertura y porcentaje de seña.
+ * En producción esta capa se reemplaza por Prisma manteniendo el
+ * mismo contrato.
  */
+export type SlotState = "ocupado" | "libre";
+
 export interface AdminSettings {
   /** precio por hora por cancha (override del precio base) */
   fieldPrices: Record<string, number>;
   /** canchas deshabilitadas (mantenimiento, etc.) */
   inactiveFields: string[];
-  /** turnos bloqueados manualmente: "fieldId|YYYY-MM-DD|hour" */
-  blockedSlots: string[];
+  /** estado forzado por turno: "fieldId|YYYY-MM-DD|hour" → ocupado/libre */
+  slotOverrides: Record<string, SlotState>;
   openHour?: number;
   closeHour?: number;
   /** porcentaje de seña que se cobra online */
   depositPct: number;
 }
 
-const KEY = "cancha.admin.settings.v1";
+const KEY = "cancha.admin.settings.v2";
 
 const DEFAULTS: AdminSettings = {
   fieldPrices: {},
   inactiveFields: [],
-  blockedSlots: [],
+  slotOverrides: {},
   depositPct: 30,
 };
 
@@ -51,20 +53,20 @@ export function resetAdminSettings() {
   window.localStorage.removeItem(KEY);
 }
 
-const slotKey = (fieldId: string, date: string, hour: number) =>
+export const slotKey = (fieldId: string, date: string, hour: number) =>
   `${fieldId}|${date}|${hour}`;
 
-export function isSlotBlocked(fieldId: string, date: string, hour: number) {
-  return getAdminSettings().blockedSlots.includes(slotKey(fieldId, date, hour));
-}
-
-export function toggleSlotBlock(fieldId: string, date: string, hour: number) {
+/** Fuerza el estado de un turno (el admin puede ocupar o liberar cualquiera). */
+export function setSlotState(
+  fieldId: string,
+  date: string,
+  hour: number,
+  state: SlotState
+) {
   const s = getAdminSettings();
-  const key = slotKey(fieldId, date, hour);
-  const blockedSlots = s.blockedSlots.includes(key)
-    ? s.blockedSlots.filter((k) => k !== key)
-    : [...s.blockedSlots, key];
-  return saveAdminSettings({ blockedSlots });
+  return saveAdminSettings({
+    slotOverrides: { ...s.slotOverrides, [slotKey(fieldId, date, hour)]: state },
+  });
 }
 
 /** Venue con la configuración del admin aplicada (precios, canchas, horarios). */
@@ -83,10 +85,12 @@ export function getEffectiveVenue(venue: Venue): Venue {
   };
 }
 
-/** Marca como no disponibles los turnos bloqueados por el admin. */
-export function applyBlockedSlots(slots: Slot[]): Slot[] {
-  const blocked = new Set(getAdminSettings().blockedSlots);
-  return slots.map((s) =>
-    blocked.has(slotKey(s.fieldId, s.date, s.hour)) ? { ...s, available: false } : s
-  );
+/** Aplica los estados forzados por el admin sobre la disponibilidad base. */
+export function applySlotOverrides(slots: Slot[]): Slot[] {
+  const overrides = getAdminSettings().slotOverrides;
+  return slots.map((s) => {
+    const o = overrides[slotKey(s.fieldId, s.date, s.hour)];
+    if (!o) return s;
+    return { ...s, available: o === "libre" };
+  });
 }
