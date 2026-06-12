@@ -114,7 +114,7 @@ export function AvailabilityGrid({ venue }: Props) {
             disabled={!s.available}
             onClick={() =>
               router.push(
-                `/reservar/${venue.slug}?cancha=${fieldId}&fecha=${date}&hora=${s.hour}`
+                `/reservar?cancha=${fieldId}&fecha=${date}&hora=${s.hour}`
               )
             }
             className={cn(

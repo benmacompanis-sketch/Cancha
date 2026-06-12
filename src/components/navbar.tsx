@@ -10,9 +10,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/buscar", label: "Explorar" },
-  { href: "/dashboard", label: "Mis partidos" },
-  { href: "/admin", label: "Para complejos" },
+  { href: "/#canchas", label: "Canchas" },
+  { href: "/#ubicacion", label: "Ubicación" },
+  { href: "/dashboard", label: "Mis reservas" },
 ];
 
 export function Navbar() {
@@ -44,12 +44,7 @@ export function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className={cn(
-                "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                pathname.startsWith(l.href)
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
+              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {l.label}
             </Link>
@@ -58,12 +53,7 @@ export function Navbar() {
 
         <div className="hidden items-center gap-2 md:flex">
           <ThemeToggle />
-          <Link href="/login">
-            <Button variant="ghost" size="sm" className="h-9 px-4 text-sm">
-              Iniciar sesión
-            </Button>
-          </Link>
-          <Link href="/buscar">
+          <Link href="/reservar">
             <Button size="sm" className="h-9 px-4 text-sm">
               Reservar ahora
             </Button>
@@ -89,18 +79,14 @@ export function Navbar() {
             <Link
               key={l.href}
               href={l.href}
+              onClick={() => setOpen(false)}
               className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
             >
               {l.label}
             </Link>
           ))}
-          <div className="mt-3 flex gap-2">
-            <Link href="/login" className="flex-1">
-              <Button variant="outline" className="w-full">
-                Iniciar sesión
-              </Button>
-            </Link>
-            <Link href="/buscar" className="flex-1">
+          <div className="mt-3">
+            <Link href="/reservar" onClick={() => setOpen(false)}>
               <Button className="w-full">Reservar ahora</Button>
             </Link>
           </div>

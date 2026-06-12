@@ -4,37 +4,37 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import "./globals.css";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://cancha.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://labombonerita.com.ar";
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: "Cancha — Reservá tu cancha de fútbol en segundos",
-    template: "%s · Cancha",
+    default: "La Bombonerita — Canchas de fútbol en Caballito",
+    template: "%s · La Bombonerita",
   },
   description:
-    "Encontrá disponibilidad en tiempo real y asegurá tu partido sin llamadas ni WhatsApp. Reservas online de canchas de fútbol 5, 7, 8 y 11 en toda Argentina.",
+    "Complejo de fútbol en Caballito con 4 canchas de césped sintético (F5, F7 y F8), techadas y descubiertas. Reservá online con disponibilidad en tiempo real, pagá con Mercado Pago y recibí tu QR al instante.",
   keywords: [
-    "reservar cancha de fútbol",
-    "fútbol 5",
-    "fútbol 7",
-    "canchas Buenos Aires",
-    "alquiler cancha",
+    "cancha de fútbol Caballito",
+    "alquiler cancha fútbol 5",
+    "fútbol 5 Caballito",
+    "complejo deportivo Caballito",
+    "reservar cancha online",
   ],
   openGraph: {
     type: "website",
     locale: "es_AR",
-    siteName: "Cancha",
-    title: "Cancha — Reservá tu cancha de fútbol en segundos",
+    siteName: "La Bombonerita",
+    title: "La Bombonerita — Canchas de fútbol en Caballito",
     description:
-      "Disponibilidad en tiempo real, pago online y confirmación instantánea.",
+      "4 canchas de sintético profesional. Reservá online en 30 segundos, sin llamadas ni WhatsApp.",
     url: APP_URL,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Cancha — Reservá tu cancha en segundos",
+    title: "La Bombonerita — Canchas de fútbol en Caballito",
     description:
-      "Disponibilidad en tiempo real, pago online y confirmación instantánea.",
+      "Reservá online en 30 segundos, sin llamadas ni WhatsApp.",
   },
   robots: { index: true, follow: true },
   alternates: { canonical: "/" },
@@ -51,13 +51,26 @@ export const viewport: Viewport = {
 
 const orgJsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Cancha",
+  "@type": "SportsActivityLocation",
+  name: "La Bombonerita",
   url: APP_URL,
   logo: `${APP_URL}/icon.svg`,
   description:
-    "Plataforma de reservas online de canchas de fútbol en Argentina.",
-  sameAs: [],
+    "Complejo de canchas de fútbol 5, 7 y 8 en Caballito con reservas online.",
+  telephone: "+54 11 4901-2233",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Av. Rivadavia 5340",
+    addressLocality: "Caballito, Buenos Aires",
+    addressCountry: "AR",
+  },
+  openingHours: "Mo-Su 09:00-24:00",
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: 4.9,
+    reviewCount: 482,
+  },
+  priceRange: "$$",
 };
 
 export default function RootLayout({

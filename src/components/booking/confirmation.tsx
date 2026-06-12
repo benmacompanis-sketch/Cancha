@@ -38,8 +38,8 @@ export function Confirmation() {
         <p className="mt-2 text-muted-foreground">
           El código no existe o la reserva se hizo desde otro dispositivo.
         </p>
-        <Link href="/buscar" className="mt-6 inline-block">
-          <Button>Buscar canchas</Button>
+        <Link href="/reservar" className="mt-6 inline-block">
+          <Button>Hacer una reserva</Button>
         </Link>
       </div>
     );

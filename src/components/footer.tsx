@@ -1,30 +1,30 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
+import { COMPANY } from "@/lib/data/company";
 
 const columns = [
   {
-    title: "Producto",
+    title: "Reservas",
     links: [
-      { label: "Explorar complejos", href: "/buscar" },
-      { label: "Mis partidos", href: "/dashboard" },
-      { label: "Torneos", href: "/dashboard" },
-      { label: "Ranking", href: "/dashboard" },
+      { label: "Reservar cancha", href: "/reservar" },
+      { label: "Mis reservas", href: "/dashboard" },
+      { label: "Torneos", href: "/#canchas" },
     ],
   },
   {
-    title: "Para complejos",
+    title: "El complejo",
     links: [
+      { label: "Nuestras canchas", href: "/#canchas" },
+      { label: "Ubicación y horarios", href: "/#ubicacion" },
       { label: "Panel de administración", href: "/admin" },
-      { label: "Multi-sucursal", href: "/admin" },
-      { label: "Reportes", href: "/admin" },
     ],
   },
   {
-    title: "Compañía",
+    title: "Contacto",
     links: [
-      { label: "Sobre Cancha", href: "/" },
-      { label: "Términos", href: "/" },
-      { label: "Privacidad", href: "/" },
+      { label: COMPANY.phone, href: `tel:${COMPANY.phone.replace(/\s/g, "")}` },
+      { label: "WhatsApp", href: `https://wa.me/${COMPANY.whatsapp.replace(/\D/g, "")}` },
+      { label: COMPANY.instagram, href: "/" },
     ],
   },
 ];
@@ -37,8 +37,8 @@ export function Footer() {
           <div>
             <Logo />
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-              La forma más rápida de reservar canchas de fútbol en Argentina.
-              Sin llamadas, sin WhatsApp, sin vueltas.
+              {COMPANY.tagline}. {COMPANY.address}. Reservá online y vení a
+              jugar: sin llamadas, sin vueltas.
             </p>
           </div>
           {columns.map((col) => (
@@ -60,8 +60,10 @@ export function Footer() {
           ))}
         </div>
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} Cancha · Hecho en Argentina 🇦🇷</p>
-          <p>Buenos Aires · Córdoba · Rosario · Mendoza</p>
+          <p>
+            © {new Date().getFullYear()} {COMPANY.name} · Caballito, Buenos Aires 🇦🇷
+          </p>
+          <p>Abierto todos los días de 09 a 24 hs</p>
         </div>
       </div>
     </footer>

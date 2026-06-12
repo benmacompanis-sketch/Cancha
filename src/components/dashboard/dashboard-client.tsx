@@ -15,8 +15,6 @@ import {
   Users,
 } from "lucide-react";
 import { demoUser, getUserBookings } from "@/lib/data/user";
-import { venues } from "@/lib/data/venues";
-import { getAvailableCount } from "@/lib/data/availability";
 import { getClientBookings } from "@/lib/data/client-store";
 import { formatARS, formatDateShort, toISODate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,7 +22,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VenueCard } from "@/components/venue/venue-card";
 import { FadeIn } from "@/components/motion";
 
 const STATUS_BADGE: Record<string, { label: string; variant: "success" | "secondary" | "destructive" }> = {
@@ -44,7 +41,6 @@ export function DashboardClient() {
     () => getUserBookings(mounted ? getClientBookings() : []),
     [mounted]
   );
-  const favorites = venues.filter((v) => demoUser.favorites.includes(v.slug));
   const today = toISODate(new Date());
   const s = demoUser.stats;
 
@@ -79,7 +75,7 @@ export function DashboardClient() {
               </p>
             </div>
           </div>
-          <Link href="/buscar">
+          <Link href="/reservar">
             <Button>Reservar otro partido</Button>
           </Link>
         </div>
@@ -110,7 +106,6 @@ export function DashboardClient() {
           <TabsList className="flex-wrap">
             <TabsTrigger value="proximos">Próximos</TabsTrigger>
             <TabsTrigger value="historial">Historial</TabsTrigger>
-            <TabsTrigger value="favoritos">Favoritos</TabsTrigger>
             <TabsTrigger value="equipos">Equipos</TabsTrigger>
             <TabsTrigger value="facturas">Facturas</TabsTrigger>
           </TabsList>
@@ -190,14 +185,6 @@ export function DashboardClient() {
                   </Badge>
                   <p className="w-24 text-right font-semibold">{formatARS(b.price)}</p>
                 </div>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="favoritos">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {favorites.map((v) => (
-                <VenueCard key={v.id} venue={v} availableToday={getAvailableCount(v, today)} />
               ))}
             </div>
           </TabsContent>

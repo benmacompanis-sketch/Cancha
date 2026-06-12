@@ -27,7 +27,7 @@ export function Logo({ className }: { className?: string }) {
       className={cn("flex items-center gap-2.5 font-semibold tracking-tight", className)}
     >
       <LogoMark />
-      <span className="text-lg">Cancha</span>
+      <span className="text-lg">La Bombonerita</span>
     </Link>
   );
 }

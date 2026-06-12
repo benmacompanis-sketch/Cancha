@@ -4,10 +4,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Cancha — Reservá tu cancha en segundos",
-    short_name: "Cancha",
+    name: "La Bombonerita — Canchas de fútbol en Caballito",
+    short_name: "La Bombonerita",
     description:
-      "Reservas online de canchas de fútbol con disponibilidad en tiempo real.",
+      "Reservá tu cancha online con disponibilidad en tiempo real.",
     start_url: "/",
     display: "standalone",
     background_color: "#09090b",
