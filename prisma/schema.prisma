@@ -1,0 +1,404 @@
+// Cancha — Esquema de base de datos PostgreSQL
+// Relaciones completas documentadas en docs/DATABASE.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────── Usuarios ───────────────────────────
+
+enum UserRole {
+  PLAYER
+  VENUE_OWNER
+  VENUE_STAFF
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  clerkId       String    @unique // ID de Clerk (Google / Apple / Email)
+  email         String    @unique
+  name          String
+  phone         String?
+  avatarUrl     String?
+  role          UserRole  @default(PLAYER)
+  points        Int       @default(0) // sistema de puntos
+  referralCode  String    @unique @default(cuid())
+  referredById  String?
+  referredBy    User?     @relation("Referrals", fields: [referredById], references: [id])
+  referrals     User[]    @relation("Referrals")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  bookings      Booking[]
+  reviews       Review[]
+  favorites     Favorite[]
+  notifications Notification[]
+  teamMembers   TeamMember[]
+  ownedVenues   Venue[]        @relation("VenueOwner")
+  waitlist      WaitlistEntry[]
+  couponUses    CouponRedemption[]
+  invoices      Invoice[]
+
+  @@index([email])
+}
+
+// ─────────────────────── Complejos y canchas ───────────────────────
+
+model Venue {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  description  String
+  city         String
+  neighborhood String
+  address      String
+  lat          Float
+  lng          Float
+  phone        String?
+  whatsapp     String?
+  openHour     Int // 0–23
+  closeHour    Int
+  amenities    String[] // estacionamiento, buffet, vestuarios…
+  photos       String[]
+  videoUrl     String?
+  featured     Boolean  @default(false)
+  active       Boolean  @default(true)
+  ownerId      String
+  owner        User     @relation("VenueOwner", fields: [ownerId], references: [id])
+  // Panel multi-sucursal: varios complejos comparten una organización
+  organizationId String?
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  fields   Field[]
+  reviews  Review[]
+  favorites Favorite[]
+  coupons  Coupon[]
+  tournaments Tournament[]
+
+  @@index([city, neighborhood])
+  @@index([slug])
+}
+
+model Organization {
+  id      String  @id @default(cuid())
+  name    String
+  venues  Venue[]
+}
+
+enum FieldType {
+  F5
+  F6
+  F7
+  F8
+  F11
+}
+
+enum Surface {
+  SINTETICO
+  NATURAL
+}
+
+model Field {
+  id           String    @id @default(cuid())
+  venueId      String
+  venue        Venue     @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  name         String
+  type         FieldType
+  surface      Surface
+  covered      Boolean // techada / descubierta
+  pricePerHour Int // en centavos ARS
+  active       Boolean   @default(true)
+
+  bookings   Booking[]
+  priceRules PriceRule[]
+  waitlist   WaitlistEntry[]
+
+  @@index([venueId])
+}
+
+// Precios dinámicos por franja horaria / día de semana
+model PriceRule {
+  id        String @id @default(cuid())
+  fieldId   String
+  field     Field  @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  dayOfWeek Int // 0–6, -1 = todos
+  fromHour  Int
+  toHour    Int
+  price     Int
+
+  @@index([fieldId])
+}
+
+// ─────────────────────────── Reservas ───────────────────────────
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  CANCELLED
+  RESCHEDULED
+  COMPLETED
+  NO_SHOW
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  code      String        @unique // código corto para QR / check-in
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  fieldId   String
+  field     Field         @relation(fields: [fieldId], references: [id])
+  date      DateTime      @db.Date
+  startHour Int
+  endHour   Int
+  price     Int
+  status    BookingStatus @default(PENDING_PAYMENT)
+  qrToken   String        @unique @default(cuid())
+  notes     String?
+  // Reagendamiento: referencia a la reserva original
+  rescheduledFromId String?  @unique
+  rescheduledFrom   Booking? @relation("Reschedule", fields: [rescheduledFromId], references: [id])
+  rescheduledTo     Booking? @relation("Reschedule")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  payments Payment[]
+  invoice  Invoice?
+  review   Review?
+
+  // Evita doble reserva del mismo turno (constraint a nivel DB)
+  @@unique([fieldId, date, startHour])
+  @@index([userId, date])
+  @@index([fieldId, date])
+}
+
+// ─────────────────────────── Pagos ───────────────────────────
+
+enum PaymentProvider {
+  MERCADOPAGO
+  CARD
+  TRANSFER
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REFUNDED
+}
+
+enum PaymentKind {
+  DEPOSIT // seña
+  FULL    // pago total
+  BALANCE // saldo restante
+}
+
+model Payment {
+  id          String          @id @default(cuid())
+  bookingId   String
+  booking     Booking         @relation(fields: [bookingId], references: [id])
+  provider    PaymentProvider
+  kind        PaymentKind
+  status      PaymentStatus   @default(PENDING)
+  amount      Int
+  externalId  String? // ID de Mercado Pago
+  receiptUrl  String? // comprobante generado
+  createdAt   DateTime        @default(now())
+  approvedAt  DateTime?
+
+  @@index([bookingId])
+  @@index([externalId])
+}
+
+model Invoice {
+  id        String   @id @default(cuid())
+  number    String   @unique
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  amount    Int
+  pdfUrl    String?
+  createdAt DateTime @default(now())
+}
+
+// ─────────────────────── Opiniones y favoritos ───────────────────────
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  venueId   String
+  venue     Venue    @relation(fields: [venueId], references: [id])
+  bookingId String   @unique // solo se puede opinar tras jugar
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  rating    Int // 1–5
+  text      String?
+  createdAt DateTime @default(now())
+
+  @@index([venueId])
+}
+
+model Favorite {
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+  venueId String
+  venue   Venue  @relation(fields: [venueId], references: [id])
+
+  @@id([userId, venueId])
+}
+
+// ─────────────────────────── Cupones ───────────────────────────
+
+model Coupon {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  venueId     String? // null = cupón de plataforma
+  venue       Venue?   @relation(fields: [venueId], references: [id])
+  percentOff  Int?
+  amountOff   Int?
+  maxUses     Int?
+  expiresAt   DateTime?
+  active      Boolean  @default(true)
+
+  redemptions CouponRedemption[]
+}
+
+model CouponRedemption {
+  id       String   @id @default(cuid())
+  couponId String
+  coupon   Coupon   @relation(fields: [couponId], references: [id])
+  userId   String
+  user     User     @relation(fields: [userId], references: [id])
+  usedAt   DateTime @default(now())
+
+  @@unique([couponId, userId])
+}
+
+// ─────────────────────── Equipos y torneos ───────────────────────
+
+model Team {
+  id        String       @id @default(cuid())
+  name      String
+  crestUrl  String?
+  createdAt DateTime     @default(now())
+
+  members     TeamMember[]
+  homeMatches TournamentMatch[] @relation("HomeTeam")
+  awayMatches TournamentMatch[] @relation("AwayTeam")
+  entries     TournamentEntry[]
+}
+
+enum TeamRole {
+  CAPTAIN
+  PLAYER
+}
+
+model TeamMember {
+  teamId String
+  team   Team     @relation(fields: [teamId], references: [id])
+  userId String
+  user   User     @relation(fields: [userId], references: [id])
+  role   TeamRole @default(PLAYER)
+  // Estadísticas personales por equipo
+  goals    Int @default(0)
+  assists  Int @default(0)
+  matches  Int @default(0)
+  mvpCount Int @default(0)
+
+  @@id([teamId, userId])
+}
+
+enum TournamentStatus {
+  OPEN
+  IN_PROGRESS
+  FINISHED
+}
+
+model Tournament {
+  id        String           @id @default(cuid())
+  venueId   String
+  venue     Venue            @relation(fields: [venueId], references: [id])
+  name      String
+  type      FieldType
+  status    TournamentStatus @default(OPEN)
+  startsAt  DateTime
+  prize     String?
+
+  entries TournamentEntry[]
+  matches TournamentMatch[]
+}
+
+model TournamentEntry {
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  teamId       String
+  team         Team       @relation(fields: [teamId], references: [id])
+  points       Int        @default(0)
+
+  @@id([tournamentId, teamId])
+}
+
+model TournamentMatch {
+  id           String     @id @default(cuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  homeTeamId   String
+  homeTeam     Team       @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeamId   String
+  awayTeam     Team       @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  homeGoals    Int?
+  awayGoals    Int?
+  playedAt     DateTime?
+}
+
+// ─────────────────── Notificaciones y lista de espera ───────────────────
+
+enum NotificationChannel {
+  EMAIL
+  WHATSAPP
+  PUSH
+}
+
+enum NotificationStatus {
+  QUEUED
+  SENT
+  FAILED
+}
+
+model Notification {
+  id        String              @id @default(cuid())
+  userId    String
+  user      User                @relation(fields: [userId], references: [id])
+  channel   NotificationChannel
+  status    NotificationStatus  @default(QUEUED)
+  title     String
+  body      String
+  sentAt    DateTime?
+  createdAt DateTime            @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// Lista de espera: si se libera un turno, se notifica en orden
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  fieldId   String
+  field     Field    @relation(fields: [fieldId], references: [id])
+  date      DateTime @db.Date
+  hour      Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, fieldId, date, hour])
+  @@index([fieldId, date, hour])
+}
