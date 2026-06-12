@@ -1,0 +1,63 @@
+name: Deploy a GitHub Pages
+
+on:
+  push:
+    branches: [main, claude/football-booking-platform-oq4gd7]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Configurar GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      # Las API routes (disponibilidad, webhook de Mercado Pago) son
+      # server-side y no existen en un sitio estático: se excluyen solo
+      # de esta build. En Vercel/Node se despliegan normalmente.
+      - name: Excluir API routes de la build estática
+        run: rm -rf src/app/api
+
+      - name: Build estática
+        run: npm run build
+        env:
+          STATIC_EXPORT: "1"
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+          NEXT_PUBLIC_APP_URL: ${{ steps.pages.outputs.base_url }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Desplegar a GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

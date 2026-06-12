@@ -11,7 +11,13 @@ npm install
 npm run dev        # http://localhost:3000
 ```
 
-Funciona out-of-the-box en **modo demo** (datos seed en memoria, pagos simulados). Para producción, copiá `.env.example` a `.env` y configurá Clerk, Mercado Pago, Resend, WhatsApp API y `DATABASE_URL` (PostgreSQL + `npx prisma migrate dev`).
+Funciona out-of-the-box en **modo demo** (datos seed, reservas en localStorage, pagos simulados). Para producción, copiá `.env.example` a `.env` y configurá Clerk, Mercado Pago, Resend, WhatsApp API y `DATABASE_URL` (PostgreSQL + `npx prisma migrate dev`).
+
+## 🌐 Demo en GitHub Pages
+
+Cada push a `main` (o a la rama de desarrollo) dispara [`deploy-pages.yml`](.github/workflows/deploy-pages.yml), que genera el sitio estático (`STATIC_EXPORT=1` → `output: "export"`) y lo publica en **GitHub Pages**. Todo el flujo —búsqueda, disponibilidad, wizard de reserva, QR y dashboards— corre del lado del cliente, por lo que el demo es 100% funcional sin backend. Las API routes (disponibilidad y webhook de Mercado Pago) se excluyen de la build estática y quedan para el despliegue con servidor (Vercel).
+
+> Si es la primera vez: en **Settings → Pages** del repo, elegí "GitHub Actions" como source (el workflow intenta habilitarlo automáticamente).
 
 ## ✨ Qué incluye
 

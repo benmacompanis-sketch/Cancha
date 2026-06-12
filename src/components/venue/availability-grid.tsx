@@ -3,21 +3,44 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import type { Slot, Venue } from "@/lib/data/types";
+import type { Venue } from "@/lib/data/types";
 import { FIELD_TYPE_LABELS } from "@/lib/data/venues";
+import { getSlotsForVenue } from "@/lib/data/availability";
+import { getUpcomingDates } from "@/lib/dates";
 import { cn, formatARS } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Props {
   venue: Venue;
-  dates: { iso: string; label: string }[];
-  slots: Slot[];
 }
 
-export function AvailabilityGrid({ venue, dates, slots }: Props) {
+export function AvailabilityGrid({ venue }: Props) {
   const router = useRouter();
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
+  // Calculado en el cliente: funciona en hosting estático y refleja
+  // siempre la fecha actual del visitante.
+  const dates = React.useMemo(() => getUpcomingDates(7), []);
+  const slots = React.useMemo(
+    () => dates.flatMap((d) => getSlotsForVenue(venue, d.iso)),
+    [venue, dates]
+  );
+
   const [date, setDate] = React.useState(dates[0].iso);
   const [fieldId, setFieldId] = React.useState(venue.fields[0].id);
+
+  if (!mounted) {
+    return (
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-premium">
+        <Skeleton className="h-6 w-40" />
+        <Skeleton className="mt-4 h-10 w-full" />
+        <Skeleton className="mt-3 h-14 w-full" />
+        <Skeleton className="mt-4 h-48 w-full" />
+      </div>
+    );
+  }
 
   const field = venue.fields.find((f) => f.id === fieldId)!;
   const daySlots = slots

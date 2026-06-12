@@ -1,5 +1,4 @@
 import type { Booking } from "./types";
-import { bookingStore } from "./bookings";
 import { addDays, toISODate } from "@/lib/utils";
 
 /**
@@ -110,11 +109,19 @@ const seededHistory: Booking[] = [
   },
 ];
 
-export function getUserBookings() {
+/**
+ * Combina las reservas seed del usuario demo con las reservas vivas
+ * (`extra`: por ejemplo, las guardadas en localStorage por el cliente).
+ */
+export function getUserBookings(extra: Booking[] = []) {
   const today = toISODate(new Date());
-  const live = bookingStore.list().filter((b) => b.status !== "cancelada");
+  const live = extra.filter((b) => b.status !== "cancelada");
   const upcoming = [...live.filter((b) => b.date >= today), ...seededUpcoming].sort(
     (a, b) => a.date.localeCompare(b.date) || a.hour - b.hour
   );
-  return { upcoming, history: seededHistory };
+  const history = [
+    ...live.filter((b) => b.date < today),
+    ...seededHistory,
+  ].sort((a, b) => b.date.localeCompare(a.date));
+  return { upcoming, history };
 }

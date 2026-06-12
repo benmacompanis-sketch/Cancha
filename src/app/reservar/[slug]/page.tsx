@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { getVenue } from "@/lib/data/venues";
-import { getSlotsForVenue } from "@/lib/data/availability";
-import { addDays, toISODate } from "@/lib/utils";
+import { venues, getVenue } from "@/lib/data/venues";
 import { BookingWizard } from "@/components/booking/wizard";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export const dynamic = "force-dynamic";
+export function generateStaticParams() {
+  return venues.map((v) => ({ slug: v.slug }));
+}
 
 export async function generateMetadata({
   params,
@@ -22,29 +24,12 @@ export async function generateMetadata({
 
 export default async function BookingPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ cancha?: string; fecha?: string; hora?: string }>;
 }) {
   const { slug } = await params;
-  const sp = await searchParams;
   const venue = getVenue(slug);
   if (!venue) notFound();
-
-  const dates = Array.from({ length: 7 }, (_, i) => {
-    const d = addDays(new Date(), i);
-    return {
-      iso: toISODate(d),
-      label:
-        i === 0
-          ? "Hoy"
-          : i === 1
-            ? "Mañana"
-            : new Intl.DateTimeFormat("es-AR", { weekday: "short", day: "numeric" }).format(d),
-    };
-  });
-  const slots = dates.flatMap((d) => getSlotsForVenue(venue, d.iso));
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
@@ -55,16 +40,16 @@ export default async function BookingPage({
         {venue.name}
       </h1>
       <div className="mt-8">
-        <BookingWizard
-          venue={venue}
-          dates={dates}
-          slots={slots}
-          initial={{
-            fieldId: sp.cancha,
-            date: sp.fecha,
-            hour: sp.hora ? Number(sp.hora) : undefined,
-          }}
-        />
+        <Suspense
+          fallback={
+            <div className="mx-auto max-w-2xl space-y-4">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-72 w-full" />
+            </div>
+          }
+        >
+          <BookingWizard venue={venue} />
+        </Suspense>
       </div>
     </div>
   );

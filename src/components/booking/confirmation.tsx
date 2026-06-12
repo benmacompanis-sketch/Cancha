@@ -1,29 +1,49 @@
-import type { Metadata } from "next";
+"use client";
+
+import * as React from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { CalendarDays, Check, Clock, Download, MapPin, Share2 } from "lucide-react";
 import QRCode from "react-qr-code";
-import { bookingStore } from "@/lib/data/bookings";
+import type { Booking } from "@/lib/data/types";
+import { getClientBookingByCode } from "@/lib/data/client-store";
 import { getVenue } from "@/lib/data/venues";
 import { formatARS, formatDateLong } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export const dynamic = "force-dynamic";
+export function Confirmation() {
+  const params = useSearchParams();
+  const code = params.get("code");
+  const [booking, setBooking] = React.useState<Booking | null | undefined>();
 
-export const metadata: Metadata = {
-  title: "Reserva confirmada",
-  robots: { index: false },
-};
+  React.useEffect(() => {
+    setBooking(code ? (getClientBookingByCode(code) ?? null) : null);
+  }, [code]);
 
-export default async function ConfirmationPage({
-  params,
-}: {
-  params: Promise<{ code: string }>;
-}) {
-  const { code } = await params;
-  const booking = bookingStore.getByCode(code);
-  if (!booking) notFound();
+  if (booking === undefined) {
+    return (
+      <div className="mx-auto max-w-lg space-y-4 px-4 py-12">
+        <Skeleton className="mx-auto size-16 rounded-full" />
+        <Skeleton className="h-80 w-full rounded-3xl" />
+      </div>
+    );
+  }
+
+  if (booking === null) {
+    return (
+      <div className="mx-auto max-w-lg px-4 py-20 text-center">
+        <h1 className="text-2xl font-bold">Reserva no encontrada</h1>
+        <p className="mt-2 text-muted-foreground">
+          El código no existe o la reserva se hizo desde otro dispositivo.
+        </p>
+        <Link href="/buscar" className="mt-6 inline-block">
+          <Button>Buscar canchas</Button>
+        </Link>
+      </div>
+    );
+  }
 
   const venue = getVenue(booking.venueSlug);
   const remaining = booking.price - booking.paidAmount;

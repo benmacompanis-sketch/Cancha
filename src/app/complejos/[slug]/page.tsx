@@ -15,8 +15,7 @@ import {
   PlayCircle,
 } from "lucide-react";
 import { venues, getVenue, AMENITY_LABELS, FIELD_TYPE_LABELS } from "@/lib/data/venues";
-import { getSlotsForVenue } from "@/lib/data/availability";
-import { addDays, formatARS, toISODate } from "@/lib/utils";
+import { formatARS } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { FieldVisual } from "@/components/venue/field-visual";
 import { AvailabilityGrid } from "@/components/venue/availability-grid";
@@ -64,20 +63,6 @@ export default async function VenuePage({
   const { slug } = await params;
   const venue = getVenue(slug);
   if (!venue) notFound();
-
-  const dates = Array.from({ length: 7 }, (_, i) => {
-    const d = addDays(new Date(), i);
-    return {
-      iso: toISODate(d),
-      label:
-        i === 0
-          ? "Hoy"
-          : i === 1
-            ? "Mañana"
-            : new Intl.DateTimeFormat("es-AR", { weekday: "short", day: "numeric" }).format(d),
-    };
-  });
-  const slots = dates.flatMap((d) => getSlotsForVenue(venue, d.iso));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -309,7 +294,7 @@ export default async function VenuePage({
 
         {/* ── Panel de reserva (sticky) ── */}
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <AvailabilityGrid venue={venue} dates={dates} slots={slots} />
+          <AvailabilityGrid venue={venue} />
         </div>
       </div>
     </div>

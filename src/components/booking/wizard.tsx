@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -14,34 +14,61 @@ import {
   Loader2,
   Wallet,
 } from "lucide-react";
-import type { Slot, Venue, PaymentKind, PaymentMethod } from "@/lib/data/types";
+import type { Venue, PaymentKind, PaymentMethod } from "@/lib/data/types";
 import { FIELD_TYPE_LABELS } from "@/lib/data/venues";
+import { getSlotsForVenue } from "@/lib/data/availability";
+import { createClientBooking } from "@/lib/data/client-store";
+import { getUpcomingDates } from "@/lib/dates";
 import { cn, formatARS } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { FieldVisual } from "@/components/venue/field-visual";
-import { createBooking } from "@/app/reservar/actions";
 
 const STEPS = ["Cancha", "Fecha", "Horario", "Pago"] as const;
 
 interface Props {
   venue: Venue;
-  dates: { iso: string; label: string }[];
-  slots: Slot[];
-  initial: { fieldId?: string; date?: string; hour?: number };
 }
 
-export function BookingWizard({ venue, dates, slots, initial }: Props) {
+export function BookingWizard({ venue }: Props) {
   const router = useRouter();
+  const params = useSearchParams();
+
+  // Fechas y disponibilidad calculadas en el cliente: el sitio puede
+  // servirse 100% estático (GitHub Pages) sin quedar congelado al build.
+  const [mounted, setMounted] = React.useState(false);
+  const dates = React.useMemo(() => getUpcomingDates(7), []);
+  const slots = React.useMemo(
+    () => dates.flatMap((d) => getSlotsForVenue(venue, d.iso)),
+    [venue, dates]
+  );
+
+  const initial = React.useMemo(() => {
+    const hora = params.get("hora");
+    return {
+      fieldId: params.get("cancha") ?? undefined,
+      date: params.get("fecha") ?? undefined,
+      hour: hora !== null ? Number(hora) : undefined,
+    };
+  }, [params]);
+
   const validInitialField = venue.fields.some((f) => f.id === initial.fieldId);
-  const [step, setStep] = React.useState(
-    initial.hour !== undefined && validInitialField && initial.date ? 3 : 0
-  );
-  const [fieldId, setFieldId] = React.useState(
-    validInitialField ? initial.fieldId! : ""
-  );
-  const [date, setDate] = React.useState(initial.date ?? "");
-  const [hour, setHour] = React.useState<number | null>(initial.hour ?? null);
+  const [step, setStep] = React.useState(0);
+  const [fieldId, setFieldId] = React.useState("");
+  const [date, setDate] = React.useState("");
+  const [hour, setHour] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    if (validInitialField) setFieldId(initial.fieldId!);
+    if (initial.date) setDate(initial.date);
+    if (initial.hour !== undefined && !Number.isNaN(initial.hour))
+      setHour(initial.hour);
+    if (initial.hour !== undefined && validInitialField && initial.date)
+      setStep(3);
+    setMounted(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [method, setMethod] = React.useState<PaymentMethod>("mercadopago");
   const [kind, setKind] = React.useState<PaymentKind>("total");
   const [name, setName] = React.useState("");
@@ -68,7 +95,9 @@ export function BookingWizard({ venue, dates, slots, initial }: Props) {
   function submit() {
     setError(null);
     startTransition(async () => {
-      const res = await createBooking({
+      // Simula la latencia del checkout (Mercado Pago en producción)
+      await new Promise((r) => setTimeout(r, 900));
+      const res = createClientBooking({
         venueSlug: venue.slug,
         fieldId,
         date,
@@ -78,9 +107,18 @@ export function BookingWizard({ venue, dates, slots, initial }: Props) {
         customerName: name,
         customerEmail: email,
       });
-      if ("error" in res) setError(res.error ?? "Ocurrió un error inesperado.");
-      else router.push(`/reserva/${res.code}`);
+      if ("error" in res) setError(res.error);
+      else router.push(`/reserva?code=${res.code}`);
     });
+  }
+
+  if (!mounted) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-4">
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-72 w-full" />
+      </div>
+    );
   }
 
   return (

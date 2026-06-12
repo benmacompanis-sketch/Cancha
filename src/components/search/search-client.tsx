@@ -12,9 +12,12 @@ import {
 } from "lucide-react";
 import type { Slot, Venue } from "@/lib/data/types";
 import { AMENITY_LABELS, FIELD_TYPE_LABELS } from "@/lib/data/venues";
+import { getSlotsForVenue } from "@/lib/data/availability";
+import { getUpcomingDates } from "@/lib/dates";
 import { cn, formatARS } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { VenueCard } from "@/components/venue/venue-card";
 
 const FIELD_TYPES = ["F5", "F6", "F7", "F8", "F11"] as const;
@@ -36,10 +39,6 @@ const PRICE_MAXES = [
 
 interface Props {
   venues: Venue[];
-  /** próximas fechas (ISO) disponibles para filtrar */
-  dates: { iso: string; label: string }[];
-  /** slots por complejo para esas fechas */
-  slotsByVenue: Record<string, Slot[]>;
 }
 
 function Chip({
@@ -66,7 +65,21 @@ function Chip({
   );
 }
 
-export function SearchClient({ venues, dates, slotsByVenue }: Props) {
+export function SearchClient({ venues }: Props) {
+  // Fechas y disponibilidad calculadas en el cliente para que el sitio
+  // funcione en hosting estático sin quedar congelado a la fecha del build.
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
+  const dates = React.useMemo(() => getUpcomingDates(7), []);
+  const slotsByVenue = React.useMemo(() => {
+    const map: Record<string, Slot[]> = {};
+    for (const venue of venues) {
+      map[venue.slug] = dates.flatMap((d) => getSlotsForVenue(venue, d.iso));
+    }
+    return map;
+  }, [venues, dates]);
+
   const [query, setQuery] = React.useState("");
   const [showSuggestions, setShowSuggestions] = React.useState(false);
   const [showFilters, setShowFilters] = React.useState(false);
@@ -145,6 +158,21 @@ export function SearchClient({ venues, dates, slotsByVenue }: Props) {
     (surface ? 1 : 0) +
     (maxPrice ? 1 : 0) +
     (hour !== null ? 1 : 0);
+
+  if (!mounted) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
+        <div className="mx-auto mt-3 max-w-3xl">
+          <Skeleton className="h-14 w-full rounded-full" />
+        </div>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-72 w-full rounded-2xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
