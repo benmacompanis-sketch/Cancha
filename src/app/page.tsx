@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { FadeIn, HoverLift } from "@/components/motion";
 import { FieldVisual } from "@/components/venue/field-visual";
 import { AvailabilityGrid } from "@/components/venue/availability-grid";
+import { GoogleReviews } from "@/components/google-reviews";
 
 const AMENITY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   estacionamiento: Car,
@@ -271,45 +272,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─────────────── Opiniones ─────────────── */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-        <FadeIn className="mx-auto max-w-xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Lo que dicen los que juegan acá
-          </h2>
-          <p className="mt-3 flex items-center justify-center gap-1.5 text-lg text-muted-foreground">
-            <Star className="size-5 fill-amber-400 text-amber-400" />
-            {COMPANY.stats.rating} de promedio en {COMPANY.stats.reviews} opiniones
-          </p>
-        </FadeIn>
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
-          {venue.reviews.map((r, i) => (
-            <FadeIn key={r.id} delay={i}>
-              <div className="h-full rounded-2xl border border-border bg-card p-6 shadow-premium">
-                <div className="flex items-center gap-0.5">
-                  {Array.from({ length: 5 }).map((_, j) => (
-                    <Star
-                      key={j}
-                      className={`size-4 ${
-                        j < r.rating ? "fill-amber-400 text-amber-400" : "text-border"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                  “{r.text}”
-                </p>
-                <div className="mt-5 flex items-center gap-3">
-                  <span className="flex size-9 items-center justify-center rounded-full bg-primary-soft text-sm font-bold text-primary">
-                    {r.author[0]}
-                  </span>
-                  <p className="text-sm font-semibold">{r.author}</p>
-                </div>
-              </div>
-            </FadeIn>
-          ))}
-        </div>
-      </section>
+      {/* ─────────────── Reseñas de Google ─────────────── */}
+      <GoogleReviews />
 
       {/* ─────────────── Ubicación y contacto ─────────────── */}
       <section id="ubicacion" className="border-t border-border bg-card/50 scroll-mt-20">
@@ -372,33 +336,16 @@ export default function Home() {
             </FadeIn>
 
             <FadeIn delay={2}>
-              <div className="relative h-72 overflow-hidden rounded-2xl border border-border bg-muted shadow-premium lg:h-full lg:min-h-80">
-                <svg className="absolute inset-0 h-full w-full opacity-[0.35]" aria-hidden>
-                  <defs>
-                    <pattern id="streets-home" width="52" height="52" patternUnits="userSpaceOnUse">
-                      <path d="M0 26h52M26 0v52" stroke="var(--border)" strokeWidth="2.5" />
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#streets-home)" />
-                  <path
-                    d="M-20 150 C 120 90, 260 200, 460 130"
-                    stroke="var(--primary)"
-                    strokeOpacity="0.25"
-                    strokeWidth="20"
-                    fill="none"
-                  />
-                </svg>
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <span className="relative flex">
-                    <span className="absolute inline-flex size-12 -translate-x-1/4 -translate-y-1/4 animate-ping rounded-full bg-primary/30" />
-                    <span className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-premium-lg">
-                      <MapPin className="size-4" />
-                    </span>
-                  </span>
-                </div>
-                <div className="glass absolute bottom-3 left-3 rounded-lg px-3 py-1.5 text-xs font-medium">
-                  {COMPANY.address}
-                </div>
+              {/* Banner de Google Maps (embed real, sin API key) */}
+              <div className="relative h-80 overflow-hidden rounded-2xl border border-border bg-muted shadow-premium lg:h-full lg:min-h-96">
+                <iframe
+                  title={`Mapa de ${COMPANY.name} — ${COMPANY.address}`}
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(COMPANY.address)}&z=16&output=embed&hl=es`}
+                  className="absolute inset-0 h-full w-full border-0"
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </div>
             </FadeIn>
           </div>
