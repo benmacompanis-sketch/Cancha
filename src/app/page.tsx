@@ -53,7 +53,7 @@ export default function Home() {
         />
 
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 pb-16 pt-14 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pb-24 lg:pt-20">
-          <div className="text-center lg:text-left">
+          <div className="min-w-0 text-center lg:text-left">
             <FadeIn>
               <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium shadow-premium">
                 <MapPin className="size-3.5 text-primary" />
@@ -120,8 +120,8 @@ export default function Home() {
           </div>
 
           {/* Disponibilidad real en el hero */}
-          <FadeIn delay={2}>
-            <div className="relative">
+          <FadeIn delay={2} className="min-w-0">
+            <div className="relative min-w-0">
               <div
                 aria-hidden
                 className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-tr from-primary/20 via-accent/10 to-transparent blur-2xl"

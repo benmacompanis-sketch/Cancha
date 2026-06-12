@@ -95,6 +95,9 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* Evita que cualquier elemento ancho descentre la página en mobile
+     (clip no rompe position: sticky, a diferencia de hidden) */
+  overflow-x: clip;
 }
 
 ::selection {
