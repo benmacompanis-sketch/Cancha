@@ -21,11 +21,11 @@ import {
 } from "lucide-react";
 import { COMPANY } from "@/lib/data/company";
 import { AMENITY_LABELS, FIELD_TYPE_LABELS } from "@/lib/data/venues";
-import { formatARS } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FadeIn, HoverLift } from "@/components/motion";
 import { FieldVisual } from "@/components/venue/field-visual";
+import { FieldPrice } from "@/components/venue/field-price";
 import { AvailabilityGrid } from "@/components/venue/availability-grid";
 import { GoogleReviews } from "@/components/google-reviews";
 
@@ -159,12 +159,9 @@ export default function Home() {
                           {f.roof === "techada" ? "Techada" : "Descubierta"}
                         </Badge>
                       </div>
-                      <p className="mt-3 text-sm text-muted-foreground">
-                        <span className="text-lg font-bold text-foreground">
-                          {formatARS(f.pricePerHour)}
-                        </span>{" "}
-                        / hora
-                      </p>
+                      <div className="mt-3">
+                        <FieldPrice fieldId={f.id} basePrice={f.pricePerHour} />
+                      </div>
                       <Link
                         href={`/reservar?cancha=${f.id}`}
                         className="mt-auto pt-4"

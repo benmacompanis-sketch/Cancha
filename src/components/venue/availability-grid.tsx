@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import type { Venue } from "@/lib/data/types";
 import { FIELD_TYPE_LABELS } from "@/lib/data/venues";
 import { getSlotsForVenue } from "@/lib/data/availability";
+import { applyBlockedSlots, getEffectiveVenue } from "@/lib/data/admin-store";
 import { getUpcomingDates } from "@/lib/dates";
 import { cn, formatARS } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -15,21 +16,33 @@ interface Props {
   venue: Venue;
 }
 
-export function AvailabilityGrid({ venue }: Props) {
+export function AvailabilityGrid({ venue: baseVenue }: Props) {
   const router = useRouter();
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
 
-  // Calculado en el cliente: funciona en hosting estático y refleja
-  // siempre la fecha actual del visitante.
+  // Calculado en el cliente: funciona en hosting estático, refleja la
+  // fecha actual del visitante y aplica la configuración del panel de
+  // admin (precios, canchas activas, horarios y turnos bloqueados).
+  const venue = React.useMemo(
+    () => (mounted ? getEffectiveVenue(baseVenue) : baseVenue),
+    [baseVenue, mounted]
+  );
   const dates = React.useMemo(() => getUpcomingDates(7), []);
   const slots = React.useMemo(
-    () => dates.flatMap((d) => getSlotsForVenue(venue, d.iso)),
+    () =>
+      applyBlockedSlots(dates.flatMap((d) => getSlotsForVenue(venue, d.iso))),
     [venue, dates]
   );
 
   const [date, setDate] = React.useState(dates[0].iso);
-  const [fieldId, setFieldId] = React.useState(venue.fields[0].id);
+  const [fieldId, setFieldId] = React.useState(venue.fields[0]?.id ?? "");
+
+  React.useEffect(() => {
+    if (mounted && !venue.fields.some((f) => f.id === fieldId)) {
+      setFieldId(venue.fields[0]?.id ?? "");
+    }
+  }, [mounted, venue, fieldId]);
 
   if (!mounted) {
     return (
@@ -42,7 +55,7 @@ export function AvailabilityGrid({ venue }: Props) {
     );
   }
 
-  const field = venue.fields.find((f) => f.id === fieldId)!;
+  const field = venue.fields.find((f) => f.id === fieldId) ?? venue.fields[0];
   const daySlots = slots
     .filter((s) => s.date === date && s.fieldId === fieldId)
     .sort((a, b) => a.hour - b.hour);
@@ -135,7 +148,7 @@ export function AvailabilityGrid({ venue }: Props) {
       </motion.div>
 
       <p className="mt-4 text-xs text-muted-foreground">
-        {field.name} · {FIELD_TYPE_LABELS[field.type]} · Seleccioná un horario
+        {field?.name} · {field ? FIELD_TYPE_LABELS[field.type] : ""} · Seleccioná un horario
         para reservar al instante.
       </p>
     </div>

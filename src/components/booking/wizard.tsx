@@ -18,6 +18,11 @@ import type { Venue, PaymentKind, PaymentMethod } from "@/lib/data/types";
 import { FIELD_TYPE_LABELS } from "@/lib/data/venues";
 import { getSlotsForVenue } from "@/lib/data/availability";
 import { createClientBooking } from "@/lib/data/client-store";
+import {
+  applyBlockedSlots,
+  getAdminSettings,
+  getEffectiveVenue,
+} from "@/lib/data/admin-store";
 import { getUpcomingDates } from "@/lib/dates";
 import { cn, formatARS } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -31,16 +36,26 @@ interface Props {
   venue: Venue;
 }
 
-export function BookingWizard({ venue }: Props) {
+export function BookingWizard({ venue: baseVenue }: Props) {
   const router = useRouter();
   const params = useSearchParams();
 
   // Fechas y disponibilidad calculadas en el cliente: el sitio puede
   // servirse 100% estático (GitHub Pages) sin quedar congelado al build.
+  // Aplica la configuración del panel de admin (precios, bloqueos, seña).
   const [mounted, setMounted] = React.useState(false);
+  const venue = React.useMemo(
+    () => (mounted ? getEffectiveVenue(baseVenue) : baseVenue),
+    [baseVenue, mounted]
+  );
+  const depositPct = React.useMemo(
+    () => (mounted ? getAdminSettings().depositPct : 30),
+    [mounted]
+  );
   const dates = React.useMemo(() => getUpcomingDates(7), []);
   const slots = React.useMemo(
-    () => dates.flatMap((d) => getSlotsForVenue(venue, d.iso)),
+    () =>
+      applyBlockedSlots(dates.flatMap((d) => getSlotsForVenue(venue, d.iso))),
     [venue, dates]
   );
 
@@ -81,7 +96,7 @@ export function BookingWizard({ venue }: Props) {
     (s) => s.fieldId === fieldId && s.date === date && s.hour === hour
   );
   const price = slot?.price ?? 0;
-  const toPay = kind === "seña" ? Math.round(price * 0.3) : price;
+  const toPay = kind === "seña" ? Math.round((price * depositPct) / 100) : price;
 
   const hourOptions = slots
     .filter((s) => s.fieldId === fieldId && s.date === date)
@@ -366,9 +381,9 @@ export function BookingWizard({ venue }: Props) {
                       : "border-border bg-card hover:border-foreground/30"
                   )}
                 >
-                  <p className="text-sm font-semibold">Seña 30%</p>
+                  <p className="text-sm font-semibold">Seña {depositPct}%</p>
                   <p className="text-xs text-muted-foreground">
-                    {formatARS(Math.round(price * 0.3))} ahora, resto en cancha
+                    {formatARS(Math.round((price * depositPct) / 100))} ahora, resto en cancha
                   </p>
                 </button>
               </div>

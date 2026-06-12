@@ -3,6 +3,11 @@
 import type { Booking, PaymentKind, PaymentMethod } from "./types";
 import { getVenue } from "./venues";
 import { getSlotsForVenue } from "./availability";
+import {
+  getAdminSettings,
+  getEffectiveVenue,
+  isSlotBlocked,
+} from "./admin-store";
 
 /**
  * Store de reservas del lado del cliente (localStorage).
@@ -53,16 +58,22 @@ export interface CreateBookingInput {
 export function createClientBooking(
   input: CreateBookingInput
 ): { code: string } | { error: string } {
-  const venue = getVenue(input.venueSlug);
-  if (!venue) return { error: "Complejo no encontrado" };
+  const baseVenue = getVenue(input.venueSlug);
+  if (!baseVenue) return { error: "Complejo no encontrado" };
 
+  // Configuración del panel de admin: precios, canchas activas, bloqueos
+  const venue = getEffectiveVenue(baseVenue);
   const field = venue.fields.find((f) => f.id === input.fieldId);
   if (!field) return { error: "Cancha no encontrada" };
 
   const slot = getSlotsForVenue(venue, input.date).find(
     (s) => s.fieldId === input.fieldId && s.hour === input.hour
   );
-  if (!slot?.available || isClientTaken(input.fieldId, input.date, input.hour)) {
+  if (
+    !slot?.available ||
+    isSlotBlocked(input.fieldId, input.date, input.hour) ||
+    isClientTaken(input.fieldId, input.date, input.hour)
+  ) {
     return { error: "Ese turno acaba de ocuparse. Elegí otro horario." };
   }
 
@@ -84,7 +95,9 @@ export function createClientBooking(
     hour: input.hour,
     price: slot.price,
     paidAmount:
-      input.paymentKind === "seña" ? Math.round(slot.price * 0.3) : slot.price,
+      input.paymentKind === "seña"
+        ? Math.round((slot.price * getAdminSettings().depositPct) / 100)
+        : slot.price,
     paymentMethod: input.paymentMethod,
     paymentKind: input.paymentKind,
     status: "confirmada",
