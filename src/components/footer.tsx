@@ -24,7 +24,7 @@ const columns = [
     links: [
       { label: COMPANY.phone, href: `tel:${COMPANY.phone.replace(/\s/g, "")}` },
       { label: "WhatsApp", href: `https://wa.me/${COMPANY.whatsapp.replace(/\D/g, "")}` },
-      { label: COMPANY.instagram, href: "/" },
+      { label: COMPANY.address, href: "/#ubicacion" },
     ],
   },
 ];
@@ -61,9 +61,9 @@ export function Footer() {
         </div>
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
           <p>
-            © {new Date().getFullYear()} {COMPANY.name} · Caballito, Buenos Aires 🇦🇷
+            © {new Date().getFullYear()} {COMPANY.name} · Almagro, Buenos Aires 🇦🇷
           </p>
-          <p>Abierto todos los días de 09 a 24 hs</p>
+          <p>Abierto todos los días de 10:00 a 00:30</p>
         </div>
       </div>
     </footer>

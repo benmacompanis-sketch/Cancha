@@ -7,7 +7,7 @@
  * (ver prisma/schema.prisma) y middleware de servidor.
  */
 export const DEMO_ADMIN = {
-  email: "admin@labombonerita.com",
+  email: "admin@coverfc.com",
   password: "admin123",
 };
 

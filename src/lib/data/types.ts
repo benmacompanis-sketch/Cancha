@@ -1,5 +1,5 @@
 export type FieldType = "F5" | "F6" | "F7" | "F8" | "F11";
-export type Surface = "sintetico" | "natural";
+export type Surface = "sintetico" | "natural" | "cemento";
 export type Roof = "techada" | "descubierta";
 
 export type Amenity =

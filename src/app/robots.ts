@@ -2,7 +2,7 @@ export const dynamic = "force-static";
 
 import type { MetadataRoute } from "next";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://labombonerita.com.ar";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://coverfc.com.ar";
 
 export default function robots(): MetadataRoute.Robots {
   return {

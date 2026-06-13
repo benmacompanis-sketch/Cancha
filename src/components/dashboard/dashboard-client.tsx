@@ -260,7 +260,7 @@ export function DashboardClient() {
       {/* favoritos rápidos / referidos */}
       <FadeIn delay={3}>
         <div className="mt-10 grid gap-4 lg:grid-cols-2">
-          <Card className="bg-gradient-to-br from-primary to-emerald-700 text-white">
+          <Card className="bg-gradient-to-br from-primary to-blue-700 text-white">
             <CardContent className="p-6">
               <Heart className="size-5" />
               <h3 className="mt-3 text-lg font-bold">Invitá amigos, jugá gratis</h3>
@@ -277,7 +277,7 @@ export function DashboardClient() {
               <Trophy className="size-5 text-primary" />
               <h3 className="mt-3 text-lg font-bold">Torneo Clausura F5 · Inscripción abierta</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                Arranca el 5 de julio en La Bombonerita. Premio: $500.000 + trofeo.
+                Inscripción abierta en Cover FC. Consultá premios y fechas por WhatsApp.
               </p>
               <Button className="mt-4" size="sm">
                 Inscribir a Los Pibes FC

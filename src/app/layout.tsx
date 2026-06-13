@@ -4,37 +4,37 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import "./globals.css";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://labombonerita.com.ar";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://coverfc.com.ar";
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: "La Bombonerita — Canchas de fútbol en Caballito",
-    template: "%s · La Bombonerita",
+    default: "Cover FC — Canchas de fútbol techadas en Almagro",
+    template: "%s · Cover FC",
   },
   description:
-    "Complejo de fútbol en Caballito con 4 canchas de césped sintético (F5, F7 y F8), techadas y descubiertas. Reservá online con disponibilidad en tiempo real, pagá con Mercado Pago y recibí tu QR al instante.",
+    "Club deportivo en Almagro (Yatay 556) con canchas techadas de fútbol 5 en césped sintético y fútbol 8. Reservá online con disponibilidad en tiempo real. Buffet, parrilla, vestuarios, estacionamiento, escuelita de fútbol y cumpleaños.",
   keywords: [
-    "cancha de fútbol Caballito",
+    "cancha de fútbol Almagro",
     "alquiler cancha fútbol 5",
-    "fútbol 5 Caballito",
-    "complejo deportivo Caballito",
+    "fútbol 5 Almagro",
+    "cancha techada Buenos Aires",
+    "Cover FC",
     "reservar cancha online",
   ],
   openGraph: {
     type: "website",
     locale: "es_AR",
-    siteName: "La Bombonerita",
-    title: "La Bombonerita — Canchas de fútbol en Caballito",
+    siteName: "Cover FC",
+    title: "Cover FC — Canchas de fútbol techadas en Almagro",
     description:
-      "4 canchas de sintético profesional. Reservá online en 30 segundos, sin llamadas ni WhatsApp.",
+      "Canchas techadas de F5 y F8 en Yatay 556. Reservá online en 30 segundos.",
     url: APP_URL,
   },
   twitter: {
     card: "summary_large_image",
-    title: "La Bombonerita — Canchas de fútbol en Caballito",
-    description:
-      "Reservá online en 30 segundos, sin llamadas ni WhatsApp.",
+    title: "Cover FC — Canchas techadas en Almagro",
+    description: "Reservá online en 30 segundos, sin llamadas ni vueltas.",
   },
   robots: { index: true, follow: true },
   alternates: { canonical: "/" },
@@ -52,23 +52,25 @@ export const viewport: Viewport = {
 const orgJsonLd = {
   "@context": "https://schema.org",
   "@type": "SportsActivityLocation",
-  name: "La Bombonerita",
+  name: "Cover FC",
+  alternateName: "Cover Fútbol 5",
   url: APP_URL,
   logo: `${APP_URL}/icon.svg`,
   description:
-    "Complejo de canchas de fútbol 5, 7 y 8 en Caballito con reservas online.",
-  telephone: "+54 11 4901-2233",
+    "Club deportivo en Almagro con canchas techadas de fútbol 5 y fútbol 8, reservas online, buffet, escuelita de fútbol y cumpleaños.",
+  telephone: "+54 11 4862-3880",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Av. Rivadavia 5340",
-    addressLocality: "Caballito, Buenos Aires",
+    streetAddress: "Yatay 556",
+    addressLocality: "Almagro, Buenos Aires",
+    postalCode: "C1184",
     addressCountry: "AR",
   },
-  openingHours: "Mo-Su 09:00-24:00",
+  openingHours: "Mo-Su 10:00-24:30",
   aggregateRating: {
     "@type": "AggregateRating",
-    ratingValue: 4.9,
-    reviewCount: 482,
+    ratingValue: 4.2,
+    reviewCount: 97,
   },
   priceRange: "$$",
 };

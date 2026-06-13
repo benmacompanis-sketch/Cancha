@@ -5,9 +5,7 @@ import {
   Clock,
   Droplets,
   Flame,
-  AtSign,
   Lightbulb,
-  Mail,
   MapPin,
   MessageCircle,
   Phone,
@@ -20,7 +18,7 @@ import {
   QrCode,
 } from "lucide-react";
 import { COMPANY } from "@/lib/data/company";
-import { AMENITY_LABELS, FIELD_TYPE_LABELS } from "@/lib/data/venues";
+import { AMENITY_LABELS, FIELD_TYPE_LABELS, SURFACE_LABELS } from "@/lib/data/venues";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FadeIn, HoverLift } from "@/components/motion";
@@ -57,22 +55,22 @@ export default function Home() {
             <FadeIn>
               <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium shadow-premium">
                 <MapPin className="size-3.5 text-primary" />
-                Caballito, CABA · Abierto hoy hasta las 24 hs
+                Almagro, CABA · Abierto hoy hasta las 00:30
               </div>
             </FadeIn>
 
             <FadeIn delay={1}>
               <h1 className="mt-6 text-balance text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-                Tu cancha en Caballito,{" "}
+                Tu cancha en Almagro,{" "}
                 <span className="text-gradient">lista en 30 segundos.</span>
               </h1>
             </FadeIn>
 
             <FadeIn delay={2}>
               <p className="mx-auto mt-5 max-w-lg text-pretty text-lg text-muted-foreground lg:mx-0">
-                {COMPANY.stats.fields} canchas de césped sintético profesional,
-                techadas y descubiertas. Elegí tu horario, pagá online y vení a
-                jugar. Sin llamadas, sin WhatsApp.
+                {COMPANY.stats.fields} canchas techadas: fútbol 5 en césped
+                sintético y fútbol 8. Elegí tu horario, pagá online y vení a
+                jugar. Acá no se suspende por lluvia.
               </p>
             </FadeIn>
 
@@ -106,14 +104,12 @@ export default function Home() {
                   <p className="text-xl font-bold text-foreground">
                     {COMPANY.stats.fields} canchas
                   </p>
-                  <p className="text-xs">F5, F7 y F8</p>
+                  <p className="text-xs">F5 y F8</p>
                 </div>
                 <div className="h-8 w-px bg-border" />
                 <div>
-                  <p className="text-xl font-bold text-foreground">
-                    {COMPANY.stats.yearsOpen} años
-                  </p>
-                  <p className="text-xs">en el barrio</p>
+                  <p className="text-xl font-bold text-foreground">100%</p>
+                  <p className="text-xs">techadas</p>
                 </div>
               </div>
             </FadeIn>
@@ -140,12 +136,12 @@ export default function Home() {
               Nuestras canchas
             </h2>
             <p className="mt-3 text-lg text-muted-foreground">
-              Césped sintético FIFA Quality renovado en 2025 e iluminación LED
-              profesional en todas las canchas.
+              Todas techadas y con iluminación: se juega siempre, llueva o
+              truene, de día o de noche.
             </p>
           </FadeIn>
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {venue.fields.map((f, i) => (
               <FadeIn key={f.id} delay={i}>
                 <HoverLift className="h-full">
@@ -158,6 +154,7 @@ export default function Home() {
                         <Badge variant="secondary">
                           {f.roof === "techada" ? "Techada" : "Descubierta"}
                         </Badge>
+                        <Badge variant="secondary">{SURFACE_LABELS[f.surface]}</Badge>
                       </div>
                       <div className="mt-3">
                         <FieldPrice fieldId={f.id} basePrice={f.pricePerHour} />
@@ -232,9 +229,9 @@ export default function Home() {
                 Mucho más que canchas
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
-                Buffet completo con parrilla para el tercer tiempo, vestuarios
-                climatizados con duchas, estacionamiento propio y Wi-Fi en todo
-                el predio. Venís a jugar y te quedás a comer algo.
+                Buffet y bar con parrilla para el tercer tiempo, vestuarios con
+                duchas y estacionamiento. Y además: escuelita de fútbol,
+                torneos, cumpleaños y actividades para colegios.
               </p>
               <div className="mt-6 grid grid-cols-2 gap-3">
                 {venue.amenities.map((a) => {
@@ -250,16 +247,25 @@ export default function Home() {
                   );
                 })}
               </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {COMPANY.extras.map((e) => (
+                  <Badge key={e} className="px-3 py-1">
+                    {e}
+                  </Badge>
+                ))}
+              </div>
             </FadeIn>
             <FadeIn delay={2}>
               <div className="grid grid-cols-2 gap-3">
                 <FieldVisual hue={150} className="aspect-square rounded-2xl" label="Cancha 1" />
                 <FieldVisual hue={130} className="aspect-square rounded-2xl" label="Cancha 3" />
-                <div className="col-span-2 flex aspect-[2/0.9] items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-emerald-700 p-6 text-center shadow-premium-lg">
+                <div className="col-span-2 flex aspect-[2/0.9] items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-blue-700 p-6 text-center shadow-premium-lg">
                   <div>
-                    <p className="text-3xl font-black text-white">⚽ Torneo Clausura F5</p>
+                    <p className="text-2xl font-black text-white sm:text-3xl">
+                      ⚽ Escuelita de fútbol y cumpleaños
+                    </p>
                     <p className="mt-1 text-sm text-white/85">
-                      Inscripción abierta · Arranca el 5 de julio · $500.000 en premios
+                      Consultanos por WhatsApp · Cupos para colegios y torneos
                     </p>
                   </div>
                 </div>
@@ -287,7 +293,7 @@ export default function Home() {
                     <span className="font-semibold">{COMPANY.address}</span>
                     <br />
                     <span className="text-muted-foreground">
-                      A 2 cuadras de la estación Acoyte (subte A)
+                      A metros de Av. Corrientes · Subte B (Medrano)
                     </span>
                   </span>
                 </p>
@@ -307,12 +313,8 @@ export default function Home() {
                   <span className="font-semibold">{COMPANY.phone}</span>
                 </p>
                 <p className="flex items-center gap-3">
-                  <Mail className="size-4 shrink-0 text-primary" />
-                  <span className="font-semibold">{COMPANY.email}</span>
-                </p>
-                <p className="flex items-center gap-3">
-                  <AtSign className="size-4 shrink-0 text-primary" />
-                  <span className="font-semibold">{COMPANY.instagram}</span>
+                  <MessageCircle className="size-4 shrink-0 text-primary" />
+                  <span className="font-semibold">{COMPANY.whatsapp}</span>
                 </p>
               </div>
               <div className="mt-7 flex flex-wrap gap-3">
@@ -352,19 +354,19 @@ export default function Home() {
       {/* ─────────────── CTA final ─────────────── */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <FadeIn>
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-emerald-700 px-6 py-14 text-center shadow-premium-lg sm:px-16">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-blue-700 px-6 py-14 text-center shadow-premium-lg sm:px-16">
             <div aria-hidden className="absolute -right-20 -top-20 size-72 rounded-full bg-white/10 blur-3xl" />
             <div aria-hidden className="absolute -bottom-24 -left-16 size-72 rounded-full bg-black/10 blur-3xl" />
             <h2 className="relative text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Tu próximo partido está a 30 segundos
             </h2>
             <p className="relative mx-auto mt-3 max-w-xl text-lg text-white/85">
-              Cancelación gratis hasta 24 hs antes. Si llueve y tu cancha es
-              descubierta, reprogramás sin costo.
+              Cancelación gratis hasta 24 hs antes. Canchas techadas: acá no
+              se suspende por lluvia.
             </p>
             <div className="relative mt-7">
               <Link href="/reservar">
-                <Button size="lg" className="bg-white text-emerald-800 hover:bg-white/90 hover:brightness-100">
+                <Button size="lg" className="bg-white text-blue-800 hover:bg-white/90 hover:brightness-100">
                   Reservar ahora
                   <ArrowRight />
                 </Button>

@@ -4,7 +4,7 @@ import { getSlotsForVenue } from "@/lib/data/availability";
 import { toISODate } from "@/lib/utils";
 
 /**
- * GET /api/disponibilidad?complejo=la-bombonerita&fecha=2026-06-12
+ * GET /api/disponibilidad?complejo=cover-fc&fecha=2026-06-12
  * Disponibilidad en tiempo real de un complejo para una fecha.
  */
 export async function GET(req: NextRequest) {

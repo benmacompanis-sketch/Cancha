@@ -26,11 +26,23 @@ function GoogleG({ className = "size-5" }: { className?: string }) {
   );
 }
 
-function Stars({ className = "size-3.5" }: { className?: string }) {
+function Stars({
+  className = "size-3.5",
+  rating = 5,
+}: {
+  className?: string;
+  rating?: number;
+}) {
+  const filled = Math.round(rating);
   return (
     <span className="flex items-center gap-0.5">
       {Array.from({ length: 5 }).map((_, i) => (
-        <Star key={i} className={`${className} fill-amber-400 text-amber-400`} />
+        <Star
+          key={i}
+          className={`${className} ${
+            i < filled ? "fill-amber-400 text-amber-400" : "text-border"
+          }`}
+        />
       ))}
     </span>
   );
@@ -43,7 +55,8 @@ const GOOGLE_REVIEWS = [
     name: "Marcos R.",
     role: "Jugador frecuente · F5",
     when: "hace 2 semanas",
-    text: "La Bombonerita es un nivel aparte. El sintético es nuevo, la iluminación de noche es perfecta y reservás online en 30 segundos. Volvemos todos los jueves.",
+    rating: 5,
+    text: "Un clásico de Almagro. Las canchas son techadas así que nunca se suspende, y el buffet con parrilla para el tercer tiempo es lo más. Volvemos todos los jueves.",
   },
   {
     initials: "VL",
@@ -51,7 +64,8 @@ const GOOGLE_REVIEWS = [
     name: "Valentina L.",
     role: "Reseñas locales · Google Maps",
     when: "hace 1 mes",
-    text: "Organizamos el torneo de la oficina acá y salió todo perfecto. Vestuarios limpios, buffet con buena onda. El precio/calidad es inmejorable en Caballito.",
+    rating: 4,
+    text: "Festejamos el cumple de mi hijo acá y salió todo perfecto. La escuelita de fútbol también es muy buena, los profes tienen mucha paciencia.",
   },
   {
     initials: "DM",
@@ -59,7 +73,8 @@ const GOOGLE_REVIEWS = [
     name: "Diego M.",
     role: "Local Guide · Google Maps",
     when: "hace 3 semanas",
-    text: "La reserva con QR es una genialidad: llegás, escaneás y a la cancha. La techada nos salvó un día de lluvia. El tercer tiempo con parrilla, una bestialidad.",
+    rating: 4,
+    text: "Muy buena ubicación, a metros de Corrientes y el subte B. Vestuarios con duchas y estacionamiento, que en Almagro no es poco. La F8 está siempre cuidada.",
   },
   {
     initials: "CF",
@@ -67,7 +82,8 @@ const GOOGLE_REVIEWS = [
     name: "Carla F.",
     role: "Local Guide · 2025",
     when: "hace 2 meses",
-    text: "Complejo honesto y bien cuidado. La atención al cliente es excepcional y las canchas techadas son los hits, pero las descubiertas no se quedan atrás.",
+    rating: 4,
+    text: "Club de barrio honesto y bien atendido. Jugamos un torneo de oficina y la organización fue impecable. La reserva online ahora hace todo más fácil.",
   },
 ];
 
@@ -90,7 +106,7 @@ export function GoogleReviews() {
             <span className="text-3xl font-black text-amber-400">
               {COMPANY.stats.rating}
             </span>
-            <Stars className="size-4" />
+            <Stars className="size-4" rating={COMPANY.stats.rating} />
           </span>
           <span className="text-sm text-muted-foreground">
             basado en reseñas recientes
@@ -126,7 +142,7 @@ export function GoogleReviews() {
                 <GoogleG className="size-4 shrink-0" />
               </div>
               <div className="mt-3 flex items-center gap-2">
-                <Stars />
+                <Stars rating={r.rating} />
                 <span className="text-xs text-muted-foreground">{r.when}</span>
               </div>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
