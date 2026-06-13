@@ -21,7 +21,7 @@ export const demoUser = {
     streak: 4,
   },
   teams: [
-    { id: "t1", name: "Los Pibes FC", role: "Capitán", members: 9, color: "#2563eb" },
+    { id: "t1", name: "Los Pibes FC", role: "Capitán", members: 9, color: "#43a047" },
     { id: "t2", name: "Deportivo Oficina", role: "Jugador", members: 12, color: "#0ea5e9" },
   ],
 };

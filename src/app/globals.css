@@ -11,11 +11,12 @@
   --muted-foreground: #71717a;
   --border: #e4e4e7;
   --input: #e4e4e7;
-  --primary: #2563eb;
+  /* Verde del escudo de Cover FC + amarillo de la estrella */
+  --primary: #43a047;
   --primary-foreground: #ffffff;
-  --primary-soft: #eff6ff;
-  --accent: #38bdf8;
-  --ring: #2563eb;
+  --primary-soft: #eef9ee;
+  --accent: #fbbf24;
+  --ring: #43a047;
   --glass: rgba(255, 255, 255, 0.72);
   --glass-border: rgba(9, 9, 11, 0.08);
   --shadow-premium: 0 1px 2px rgba(9, 9, 11, 0.04), 0 8px 24px -8px rgba(9, 9, 11, 0.12);
@@ -31,11 +32,11 @@
   --muted-foreground: #a1a1aa;
   --border: #232326;
   --input: #27272a;
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --primary-soft: #0c1a33;
-  --accent: #7dd3fc;
-  --ring: #3b82f6;
+  --primary: #4caf50;
+  --primary-foreground: #07210a;
+  --primary-soft: #0e2611;
+  --accent: #fcd34d;
+  --ring: #4caf50;
   --glass: rgba(17, 17, 19, 0.72);
   --glass-border: rgba(250, 250, 250, 0.08);
   --shadow-premium: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -8px rgba(0, 0, 0, 0.5);

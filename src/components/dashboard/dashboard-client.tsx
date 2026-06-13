@@ -260,7 +260,7 @@ export function DashboardClient() {
       {/* favoritos rápidos / referidos */}
       <FadeIn delay={3}>
         <div className="mt-10 grid gap-4 lg:grid-cols-2">
-          <Card className="bg-gradient-to-br from-primary to-blue-700 text-white">
+          <Card className="bg-gradient-to-br from-primary to-green-700 text-white">
             <CardContent className="p-6">
               <Heart className="size-5" />
               <h3 className="mt-3 text-lg font-bold">Invitá amigos, jugá gratis</h3>

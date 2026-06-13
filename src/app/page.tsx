@@ -259,7 +259,7 @@ export default function Home() {
               <div className="grid grid-cols-2 gap-3">
                 <FieldVisual hue={150} className="aspect-square rounded-2xl" label="Cancha 1" />
                 <FieldVisual hue={130} className="aspect-square rounded-2xl" label="Cancha 3" />
-                <div className="col-span-2 flex aspect-[2/0.9] items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-blue-700 p-6 text-center shadow-premium-lg">
+                <div className="col-span-2 flex aspect-[2/0.9] items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-green-700 p-6 text-center shadow-premium-lg">
                   <div>
                     <p className="text-2xl font-black text-white sm:text-3xl">
                       ⚽ Escuelita de fútbol y cumpleaños
@@ -354,7 +354,7 @@ export default function Home() {
       {/* ─────────────── CTA final ─────────────── */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <FadeIn>
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-blue-700 px-6 py-14 text-center shadow-premium-lg sm:px-16">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-green-700 px-6 py-14 text-center shadow-premium-lg sm:px-16">
             <div aria-hidden className="absolute -right-20 -top-20 size-72 rounded-full bg-white/10 blur-3xl" />
             <div aria-hidden className="absolute -bottom-24 -left-16 size-72 rounded-full bg-black/10 blur-3xl" />
             <h2 className="relative text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -366,7 +366,7 @@ export default function Home() {
             </p>
             <div className="relative mt-7">
               <Link href="/reservar">
-                <Button size="lg" className="bg-white text-blue-800 hover:bg-white/90 hover:brightness-100">
+                <Button size="lg" className="bg-white text-green-800 hover:bg-white/90 hover:brightness-100">
                   Reservar ahora
                   <ArrowRight />
                 </Button>
